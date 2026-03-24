@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/coins")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class CoinController {
 

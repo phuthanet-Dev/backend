@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/stripe")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @Slf4j
 public class StripeController {

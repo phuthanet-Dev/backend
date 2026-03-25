@@ -94,14 +94,34 @@ public class StripeService {
             throw new RuntimeException("Invalid webhook signature", e);
         }
 
-        if ("checkout.session.completed".equals(event.getType())) {
-            com.stripe.model.StripeObject stripeObject = event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow(() -> new RuntimeException("Failed to deserialize Stripe event"));
+        String eventType = event.getType();
+        if ("checkout.session.completed".equals(eventType)
+                || "checkout.session.async_payment_succeeded".equals(eventType)) {
+
+            var deserializer = event.getDataObjectDeserializer();
+            com.stripe.model.StripeObject stripeObject;
+            if (deserializer.getObject().isPresent()) {
+                stripeObject = deserializer.getObject().get();
+            } else {
+                try {
+                    stripeObject = deserializer.deserializeUnsafe();
+                } catch (com.stripe.exception.EventDataObjectDeserializationException e) {
+                    log.error("Failed to deserialize Stripe event: {}", e.getMessage());
+                    throw new RuntimeException("Failed to deserialize Stripe event", e);
+                }
+            }
 
             Session session = (Session) stripeObject;
-            String firebaseUid = session.getMetadata().get("firebaseUid");
-            String coinsStr = session.getMetadata().get("coins");
+
+            // For checkout.session.completed, only process if payment is already confirmed (instant methods).
+            // For async_payment_succeeded, the payment IS confirmed — always process.
+            if ("checkout.session.completed".equals(eventType)
+                    && !"paid".equals(session.getPaymentStatus())) {
+                return;
+            }
+
+            String firebaseUid = session.getMetadata() != null ? session.getMetadata().get("firebaseUid") : null;
+            String coinsStr = session.getMetadata() != null ? session.getMetadata().get("coins") : null;
 
             if (firebaseUid == null || coinsStr == null) {
                 log.error("Missing metadata in Stripe session: {}", session.getId());
@@ -109,8 +129,6 @@ public class StripeService {
             }
 
             int coins = Integer.parseInt(coinsStr);
-            log.info("Payment completed for uid: {}, coins: {}, session: {}", firebaseUid, coins, session.getId());
-
             coinService.creditCoinsByUid(firebaseUid, coins, session.getId());
             log.info("Stripe webhook: credited {} coins to uid: {}", coins, firebaseUid);
         }

@@ -6,6 +6,7 @@ import com.mysticcard.backend.service.CoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/coins")
@@ -35,7 +36,7 @@ public class CoinController {
     @PostMapping("/deduct")
     public ResponseEntity<?> deductCoins(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody CoinDeductRequest request) {
+            @Valid @RequestBody CoinDeductRequest request) {
         try {
             String token = extractToken(authHeader);
             CoinBalanceResponse response = coinService.deductCoins(token, request.getAmount(),

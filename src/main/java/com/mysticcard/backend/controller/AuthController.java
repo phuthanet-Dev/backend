@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -15,7 +17,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/sync")
-    public ResponseEntity<AuthResponse> syncUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> syncUser(@Valid @RequestBody LoginRequest loginRequest) {
         if (loginRequest == null || loginRequest.getFirebaseToken() == null
                 || loginRequest.getFirebaseToken().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -32,7 +34,7 @@ public class AuthController {
     @PostMapping("/profile")
     public ResponseEntity<?> saveProfile(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody com.mysticcard.backend.dto.auth.ProfileRequest profileRequest) {
+            @Valid @RequestBody com.mysticcard.backend.dto.auth.ProfileRequest profileRequest) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }

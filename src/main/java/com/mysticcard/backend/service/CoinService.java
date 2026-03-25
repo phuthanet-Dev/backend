@@ -43,9 +43,15 @@ public class CoinService {
 
     @Transactional
     public void creditCoinsByUid(String firebaseUid, int amount, String transRef) {
+        log.info("[creditCoinsByUid] Starting credit: uid={}, amount={}, transRef={}", firebaseUid, amount, transRef);
+        if (coinTransactionRepository.existsByTransRef(transRef)) {
+            log.warn("[creditCoinsByUid] Duplicate webhook ignored for transRef: {}", transRef);
+            return;
+        }
         User user = userRepository.findByFirebaseUid(firebaseUid)
                 .orElseThrow(() -> new RuntimeException("User not found: " + firebaseUid));
-        user.setCoinBalance(user.getCoinBalance() + amount);
+        int currentBalance = user.getCoinBalance() != null ? user.getCoinBalance() : 0;
+        user.setCoinBalance(currentBalance + amount);
         user = userRepository.save(user);
         CoinTransaction transaction = CoinTransaction.builder()
                 .user(user)

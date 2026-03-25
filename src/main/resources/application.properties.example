@@ -29,3 +29,7 @@ stripe.success.url=https://<YOUR_FRONTEND_DOMAIN>/payment/success?session_id={CH
 stripe.cancel.url=https://<YOUR_FRONTEND_DOMAIN>/payment/cancel
 
 allowed.origins=https://<YOUR_FRONTEND_DOMAIN>,http://localhost:3000
+
+# ------- Security Cookie Configuration -------
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=lax

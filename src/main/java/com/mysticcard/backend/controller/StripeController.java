@@ -50,7 +50,7 @@ public class StripeController {
             stripeService.handleWebhook(payload, sigHeader);
             return ResponseEntity.ok("OK");
         } catch (RuntimeException e) {
-            log.error("Webhook error: {}", e.getMessage());
+            log.error("Stripe webhook error: {}", e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }

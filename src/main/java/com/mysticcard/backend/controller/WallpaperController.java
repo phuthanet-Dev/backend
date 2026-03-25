@@ -6,6 +6,7 @@ import com.mysticcard.backend.service.WallpaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/wallpaper")
@@ -24,7 +25,7 @@ public class WallpaperController {
     @PostMapping("/generate")
     public ResponseEntity<?> generateWallpaper(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody WallpaperRequest request) {
+            @Valid @RequestBody WallpaperRequest request) {
         try {
             String token = extractToken(authHeader);
             WallpaperResponse response = wallpaperService.generateWallpaper(token, request.getFocusArea());

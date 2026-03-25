@@ -10,6 +10,7 @@ import com.mysticcard.backend.dto.reading.ReadingRequest;
 import com.mysticcard.backend.service.ReadingService;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reading")
@@ -19,7 +20,7 @@ public class ReadingController {
     private final ReadingService readingService;
 
     @PostMapping("/generateReading")
-    public ResponseEntity<String> generateReading(@RequestBody ReadingRequest request) {
+    public ResponseEntity<String> generateReading(@Valid @RequestBody ReadingRequest request) {
         try {
             String reading = readingService.generateReading(
                 request.getCardNames(),
